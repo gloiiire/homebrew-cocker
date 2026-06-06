@@ -1,9 +1,9 @@
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.2.3"
+  version "0.2.4"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
-  sha256 "7bc25a149797be73a0686e11ca6c9c1bdf91c8b1e93bbc289fe4d886fe5a29b5"
+  sha256 "8eb9d68a6d5eea4746898536c4496c21172932265b1abfcd58c10162ba15d1b7"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
@@ -44,15 +44,16 @@ class Cocker < Formula
     # 4. Generate + install man pages (best-effort).
     # The plugin tries to install its own sandbox via sandbox-exec, which
     # gets denied by Homebrew's outer sandbox (`sandbox_apply: Operation
-    # not permitted`). When that happens we silently skip — man pages are
-    # nice-to-have, not load-bearing for the install to succeed.
-    if system "swift", "package", "--allow-writing-to-package-directory",
-              "generate-manual", "--multi-page"
+    # not permitted`). Homebrew's `system` raises BuildError on non-zero
+    # exit, so an `if system …` doesn't help ; we rescue explicitly.
+    begin
+      system "swift", "package", "--allow-writing-to-package-directory",
+             "generate-manual", "--multi-page"
       man1.install Dir[".build/plugins/GenerateManual/outputs/CockerCLI/*.1"]
-    else
-      opoo "man page generation failed (likely Homebrew sandbox vs. swift " \
-           "plugin) — proceeding without ; run `swift package generate-manual " \
-           "--multi-page` from a source checkout to produce them manually."
+    rescue => e
+      opoo "man page generation failed (#{e.class}: #{e.message.split("\n").first}) — " \
+           "proceeding without ; run `swift package generate-manual --multi-page` " \
+           "from a source checkout to produce them manually."
     end
 
     # 5. Stage entitlements + initrd for post_install
