@@ -1,9 +1,9 @@
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.1.1"
+  version "0.1.2"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
-  sha256 "710a2b0f763c779d676679d2ff3ec6aaf11706e599a5b9c5576dc10042d13855"
+  sha256 "0147f1b3e797610cb84a9ae16052d92aa7fcb49664588b1836ed6bf8eb6261b3"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
@@ -30,9 +30,12 @@ class Cocker < Formula
       end
     end
 
-    # 3. Install binaries
+    # 3. Install binaries (cocker-portfwd = subprocess séparé pour le port
+    #    forwarding, signé ad-hoc sans entitlement virtualization → évite
+    #    le sandbox macOS qui bloque connect() vers les IPs vmnet privées)
     bin.install ".build/release/cocker"
     bin.install ".build/release/cockerd"
+    bin.install ".build/release/cocker-portfwd"
 
     # 4. Generate + install man pages (one per subcommand)
     system "swift", "package", "--allow-writing-to-package-directory",
