@@ -1,9 +1,9 @@
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.2.7"
+  version "0.2.8"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
-  sha256 "ca4cbad48bc5554382c53253d89326719a278de47e13313acdd4f1288ce8a49c"
+  sha256 "91c1b817d5487e07d45aab7b4472184719dc98ede8bc6d1191e876874f988fc3"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
