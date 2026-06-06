@@ -1,9 +1,9 @@
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.2.1"
+  version "0.2.2"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
-  sha256 "ace56c3d6a0b73432a19c43c95fb5de9c32f18946782280a04b2c612651d6231"
+  sha256 "a33922c10873550919ee5332e0e509ac099c06338ab6149b0ebf341c1aabef00"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
@@ -18,10 +18,14 @@ class Cocker < Formula
 
     # 2. Build cocker-init (static Linux ARM64 binary) via zig, package into initrd.img
     cd "cocker-init" do
+      # The init binary was split into 6 translation units in v0.2.x —
+      # init.c is now a thin orchestrator over cmdline / net / dns_proxy /
+      # spec / qemu. zig handles them in one shot.
       system "zig", "cc",
              "-target", "aarch64-linux-musl",
              "-static", "-O2", "-Wall",
-             "-o", "cocker-init", "init.c"
+             "-o", "cocker-init",
+             "init.c", "cmdline.c", "net.c", "dns_proxy.c", "spec.c", "qemu.c"
       system "strip", "cocker-init"
       cp "cocker-init", "initrd-staging/init"
       chmod 0755, "initrd-staging/init"
@@ -37,9 +41,12 @@ class Cocker < Formula
     bin.install ".build/release/cockerd"
     bin.install ".build/release/cocker-portfwd"
 
-    # 4. Generate + install man pages (one per subcommand)
+    # 4. Generate + install man pages (one per subcommand).
+    # `swift package` doesn't accept `--disable-sandbox` — that's a
+    # `swift build` flag. The package plugin runs in its own sandbox-aware
+    # mode and just needs the writes-to-package permission.
     system "swift", "package", "--allow-writing-to-package-directory",
-           "--disable-sandbox", "generate-manual", "--multi-page"
+           "generate-manual", "--multi-page"
     man1.install Dir[".build/plugins/GenerateManual/outputs/CockerCLI/*.1"]
 
     # 5. Stage entitlements + initrd for post_install
