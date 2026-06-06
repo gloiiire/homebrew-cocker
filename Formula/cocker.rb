@@ -3,7 +3,7 @@ class Cocker < Formula
   homepage "https://github.com/gloiiire/cocker"
   version "0.1.0"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
-  sha256 "81864f450191744da0981a42f2d86443792ff792bdbce1c6ba00197f1e2b6135"
+  sha256 "c7594de551acf76696ceb71ebe297c37661d016899fcc7c8dbc3209274e75eb9"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
