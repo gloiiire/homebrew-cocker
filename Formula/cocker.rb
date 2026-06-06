@@ -1,8 +1,9 @@
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  url "https://github.com/gloiiire/cocker/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "884d2806a80fc7ef0a6294e6c0c1b03b6f28cc3c968864a330b14a99de25b74e"
+  version "0.1.0"
+  url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
+  sha256 "81864f450191744da0981a42f2d86443792ff792bdbce1c6ba00197f1e2b6135"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
@@ -33,7 +34,12 @@ class Cocker < Formula
     bin.install ".build/release/cocker"
     bin.install ".build/release/cockerd"
 
-    # 4. Stage entitlements + initrd for post_install
+    # 4. Generate + install man pages (one per subcommand)
+    system "swift", "package", "--allow-writing-to-package-directory",
+           "--disable-sandbox", "generate-manual", "--multi-page"
+    man1.install Dir[".build/plugins/GenerateManual/outputs/CockerCLI/*.1"]
+
+    # 5. Stage entitlements + initrd for post_install
     (share/"cocker").install "entitlements/cockerd.entitlements"
     (share/"cocker").install "cocker-init/initrd.img"
   end
