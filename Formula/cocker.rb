@@ -3,10 +3,10 @@ require "etc"
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.5.7"
+  version "0.5.8"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
   # Placeholder — replace with `shasum -a 256` of the actual release tarball.
-  sha256 "0eed485bbc9a62a170eb42bd8c59fec4de1f7a54897fd8133d3d35a2b64eff22"
+  sha256 "ff3c5a3064e8d253ce25a076fb3511ae00e740a6cb440e627d552c8a7ce252f5"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
@@ -151,8 +151,15 @@ class Cocker < Formula
       EOS
     end
 
-    cp share/"cocker/initrd.img", kernel_dir/"initrd.img"
-    ohai "Installed initrd: #{kernel_dir}/initrd.img"
+    # Earlier formulas (≤ v0.5.5) symlinked kernel_dir/"initrd.img" to
+    # share/cocker/initrd.img instead of copying it. FileUtils.cp refuses
+    # to copy a file over a symlink that resolves to itself ("same file"
+    # ArgumentError), which silently broke every subsequent upgrade's
+    # post_install. Unlink first so we always end up with a real file.
+    target = kernel_dir/"initrd.img"
+    target.unlink if target.symlink? || target.exist?
+    cp share/"cocker/initrd.img", target
+    ohai "Installed initrd: #{target}"
 
     # --- 3. Lease-pool helper LaunchDaemon (one-time root install) ---
     # macOS vmnet's bootpd saturates around 256 DHCP leases ; without
