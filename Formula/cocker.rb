@@ -3,10 +3,10 @@ require "etc"
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.5.6"
+  version "0.5.7"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
   # Placeholder — replace with `shasum -a 256` of the actual release tarball.
-  sha256 "670565aee19ed1db97829b37d2dc982f9b40e99a9bcb831e47462ae61322a10e"
+  sha256 "0eed485bbc9a62a170eb42bd8c59fec4de1f7a54897fd8133d3d35a2b64eff22"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
@@ -34,7 +34,7 @@ class Cocker < Formula
              "-o", "cocker-init",
              "init.c", "cmdline.c", "net.c", "dns_proxy.c",
              "spec.c", "qemu.c", "exec_listener.c", "caps.c",
-             "health_poll.c"
+             "health_poll.c", "etc_overlay.c"
       cp "cocker-init", "initrd-staging/init"
       chmod 0755, "initrd-staging/init"
       cd "initrd-staging" do
