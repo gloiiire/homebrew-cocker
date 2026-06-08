@@ -1,10 +1,10 @@
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.5.3"
+  version "0.5.4"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
   # Placeholder — replace with `shasum -a 256` of the actual release tarball.
-  sha256 "7be5e877c5b3ac2c29df4477bfd14d2c7e76770eb2171a0d236b2ec51330e521"
+  sha256 "05b7e2f035da344d4bceb4da1f0f462c3bfedf3be0d9491d128a12c96b010beb"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
@@ -42,10 +42,12 @@ class Cocker < Formula
 
     # 3. Install binaries (cocker-portfwd = subprocess séparé pour le port
     #    forwarding, signé ad-hoc sans entitlement virtualization → évite
-    #    le sandbox macOS qui bloque connect() vers les IPs vmnet privées)
+    #    le sandbox macOS qui bloque connect() vers les IPs vmnet privées ;
+    #    cocker-mcp = stdio MCP server pour Claude Desktop / agents)
     bin.install ".build/release/cocker"
     bin.install ".build/release/cockerd"
     bin.install ".build/release/cocker-portfwd"
+    bin.install ".build/release/cocker-mcp"
 
     # 4. Install man pages.
     #
