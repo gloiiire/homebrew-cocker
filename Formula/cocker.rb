@@ -3,10 +3,10 @@ require "etc"
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.5.9"
+  version "0.5.10"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
   # Placeholder — replace with `shasum -a 256` of the actual release tarball.
-  sha256 "6d479b82858666eb6b1b07a7ff8d52cb4537ce7f15b22905b7dd70bc7980c715"
+  sha256 "97828da89f23350d8f5456c4c380798542fcbb4ccd38c2ea51e5f2296e066a65"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
