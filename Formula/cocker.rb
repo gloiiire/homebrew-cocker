@@ -3,12 +3,27 @@ require "etc"
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.5.10"
+  version "0.5.14.0"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
   # Placeholder — replace with `shasum -a 256` of the actual release tarball.
-  sha256 "97828da89f23350d8f5456c4c380798542fcbb4ccd38c2ea51e5f2296e066a65"
+  sha256 "b3e1b133e0aa64b03c80c5dc0df485ed364fe5cf530bfe57c74f596982bb858b"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
+
+  # Pre-compiled binary bottles published to GitHub Releases. brew
+  # downloads these instead of running `swift build` on the user's
+  # machine — install time drops from ~3 minutes to ~5 seconds.
+  #
+  # Generated automatically by `.github/workflows/bottle.yml` on every
+  # release tag. The sha256 lines are rewritten by the workflow and
+  # committed back to this file. `cellar :any_skip_relocation` is
+  # correct here because cocker's binaries are statically positioned —
+  # they don't hard-code their install prefix.
+  bottle do
+    root_url "https://github.com/gloiiire/cocker/releases/download/v#{version}"
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "REPLACE_BOTTLE_SHA256_SEQUOIA"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "REPLACE_BOTTLE_SHA256_SONOMA"
+  end
 
   depends_on arch: :arm64
   depends_on macos: :sonoma
