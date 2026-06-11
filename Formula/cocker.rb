@@ -3,10 +3,10 @@ require "etc"
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.5.15.6"
+  version "0.5.15.7"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
   # Placeholder — replace with `shasum -a 256` of the actual release tarball.
-  sha256 "b5d3cf1eb111753dd227ee96fb8bf0d3ae437cce319ae1fd0eae715af565cca6"
+  sha256 "30561a9cd24c9008a19d0f1b855a4388cb6a5e55b05fedd1e36541b0905958ab"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
@@ -27,10 +27,10 @@ class Cocker < Formula
   # both `version "..."` AND this `vX.Y.Z` substring on every release
   # tag so they stay in lock-step.
   bottle do
-    root_url "https://github.com/gloiiire/cocker/releases/download/v0.5.15.6"
-    sha256 cellar: :any_skip_relocation, arm64_tahoe:   "de935190c6bd952095a1a05a08e3c010f6ee7e60dd009a7345b655b053bb0285"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "de935190c6bd952095a1a05a08e3c010f6ee7e60dd009a7345b655b053bb0285"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "de935190c6bd952095a1a05a08e3c010f6ee7e60dd009a7345b655b053bb0285"
+    root_url "https://github.com/gloiiire/cocker/releases/download/v0.5.15.7"
+    sha256 cellar: :any_skip_relocation, arm64_tahoe:   "b05534e4c8d28e98c41cf3d388ac54cfc743770e1711ffba46faf6b7bbe56cb8"
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "b05534e4c8d28e98c41cf3d388ac54cfc743770e1711ffba46faf6b7bbe56cb8"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "b05534e4c8d28e98c41cf3d388ac54cfc743770e1711ffba46faf6b7bbe56cb8"
   end
 
   depends_on arch: :arm64
@@ -111,11 +111,27 @@ class Cocker < Formula
 
   def post_install
     # --- 1. Sign cockerd with the user's Apple Development certificate ---
-    cert = Utils.safe_popen_read(
-      "security", "find-identity", "-v", "-p", "codesigning"
-    ).lines.grep(/Apple Development/).first&.match(/"([^"]+)"/)&.[](1)
+    #
+    # `Utils.safe_popen_read("security", ...)` returned an empty string
+    # on at least one user's keychain even though `security find-identity`
+    # in their shell printed the cert correctly. Suspected cause is the
+    # post_install sandbox blocking the keychain DB read. Shell out
+    # through /bin/sh which inherits the user's keychain context cleanly,
+    # and also accept the (rare) Developer ID Application form as a fall-
+    # back so users with a paid cert aren't punted to ad-hoc either.
+    require "open3"
+    sec_out, _err, sec_status = Open3.capture3(
+      "/bin/sh", "-c", "/usr/bin/security find-identity -v -p codesigning 2>&1"
+    )
+    cert = nil
+    if sec_status.success?
+      ["Apple Development", "Developer ID Application"].each do |kind|
+        m = sec_out.lines.grep(/#{Regexp.escape(kind)}/).first&.match(/"([^"]+)"/)&.[](1)
+        cert = m and break
+      end
+    end
 
-    if cert.nil?
+    sign_args = if cert.nil?
       opoo <<~EOS
         No "Apple Development" signing certificate found in your Keychain.
 
@@ -131,15 +147,30 @@ class Cocker < Formula
           4. Then: brew postinstall cocker
       EOS
       ohai "Ad-hoc signing cockerd with virtualization entitlement"
-      system "codesign", "--force", "--sign", "-",
-             "--entitlements", share/"cocker/cockerd.entitlements",
-             bin/"cockerd"
+      ["-"]
     else
       ohai "Signing cockerd with: #{cert}"
-      system "codesign", "--force", "--sign", cert,
-             "--entitlements", share/"cocker/cockerd.entitlements",
-             bin/"cockerd"
+      [cert]
     end
+
+    # `system "codesign"` previously raised even when codesign actually
+    # succeeded — codesign prints "replacing existing signature" to
+    # stderr on the upgrade path, and Homebrew's `system` apparently
+    # treated that as failure. Capture stdout/stderr/status explicitly
+    # so we only abort when codesign's exitstatus is non-zero, and
+    # surface the actual error if there is one.
+    cs_out, cs_err, cs_status = Open3.capture3(
+      "/usr/bin/codesign", "--force",
+      "--sign", sign_args.first,
+      "--entitlements", (share/"cocker/cockerd.entitlements").to_s,
+      (bin/"cockerd").to_s
+    )
+    unless cs_status.success?
+      opoo "codesign failed (exit #{cs_status.exitstatus}): #{cs_err.strip}"
+      opoo "cockerd may not be able to launch VMs until re-signed manually."
+    end
+    ohai "codesign: #{cs_err.strip}" unless cs_err.empty?
+    ohai cs_out.strip unless cs_out.empty?
 
     # --- 2. Provision ~/.cocker/kernel/ (kernel symlink + initrd copy) ---
     # IMPORTANT : `Dir.home` returns Homebrew's fake-home sandbox in the
