@@ -3,10 +3,10 @@ require "etc"
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.7.8"
+  version "0.7.9"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
   # Placeholder — replace with `shasum -a 256` of the actual release tarball.
-  sha256 "5f0d5e6406b5e072f79362f788aff647e8232a3efb25e0f6a2c2daab74e9ffb7"
+  sha256 "3eb1979117d1fe31575438893043ef5a13194d03c7fda6254934f62185c963ae"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
@@ -27,16 +27,23 @@ class Cocker < Formula
   # both `version "..."` AND this `vX.Y.Z` substring on every release
   # tag so they stay in lock-step.
   bottle do
-    root_url "https://github.com/gloiiire/cocker/releases/download/v0.7.8"
-    sha256 cellar: :any_skip_relocation, arm64_tahoe:   "b7b5d418f1b8ec078a4184f0cb33a39a074b1f4579ec5be62a32d470d70a4aec"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "b7b5d418f1b8ec078a4184f0cb33a39a074b1f4579ec5be62a32d470d70a4aec"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "b7b5d418f1b8ec078a4184f0cb33a39a074b1f4579ec5be62a32d470d70a4aec"
+    root_url "https://github.com/gloiiire/cocker/releases/download/v0.7.9"
+    sha256 cellar: :any_skip_relocation, arm64_tahoe:   "4cc9ae543f3cafcea9df99f4658de3417678e37a8c1c5fff1b7777dfc7f3a7a4"
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "4cc9ae543f3cafcea9df99f4658de3417678e37a8c1c5fff1b7777dfc7f3a7a4"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "4cc9ae543f3cafcea9df99f4658de3417678e37a8c1c5fff1b7777dfc7f3a7a4"
   end
 
   depends_on arch: :arm64
   depends_on macos: :sonoma
   depends_on xcode: ["15.0", :build]
   depends_on "zig" => :build
+
+  # cocker runs Linux containers inside per-container VMs spun up via Apple's
+  # Virtualization.framework, but the Linux kernel itself (vmlinuz) comes from
+  # apple's `container` formula — we reuse its kernel rather than vendoring one
+  # in our own bottle. Without this dep, `cockerd setup` would hit the cold-
+  # start "no kernel found" branch on a fresh machine.
+  depends_on "container"
 
   def install
     # 1. Build cocker + cockerd
