@@ -3,10 +3,10 @@ require "etc"
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.7.13.14"
+  version "0.7.13.15"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
   # Placeholder — replace with `shasum -a 256` of the actual release tarball.
-  sha256 "4b466fc7011532fb0318731033d10203a82d1603c82f7c549fa18203643a60bb"
+  sha256 "93cbe32a8d801ba56fdd079217321a6dffeb950e27961e17960225e06a6caafa"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
@@ -27,8 +27,8 @@ class Cocker < Formula
   # both `version "..."` AND this `vX.Y.Z` substring on every release
   # tag so they stay in lock-step.
   bottle do
-    root_url "https://github.com/gloiiire/cocker/releases/download/v0.7.13.14"
-    sha256 cellar: :any_skip_relocation, all:      "6db08f5068d1acd9a600ced26e90df8f8ced8d77c79063dc7ca7402d891deb69"
+    root_url "https://github.com/gloiiire/cocker/releases/download/v0.7.13.15"
+    sha256 cellar: :any_skip_relocation, all:      "81521e0998897b41ed1efd2a602b7d75f69ad8d102d369794a368ef9a1785dd8"
   end
 
   depends_on arch: :arm64
