@@ -3,10 +3,10 @@ require "etc"
 class Cocker < Formula
   desc "Docker-compatible container engine for Apple Silicon, powered by Apple Virtualization.framework"
   homepage "https://github.com/gloiiire/cocker"
-  version "0.7.13.10"
+  version "0.7.13.11"
   url "https://github.com/gloiiire/cocker/archive/refs/tags/v#{version}.tar.gz"
   # Placeholder — replace with `shasum -a 256` of the actual release tarball.
-  sha256 "a54fdecece436da24cbb93a2287a3eb44a4447087e8a232ed9ea802434f012d7"
+  sha256 "037e366b30e9c1d32d4dd4da8aaebbf112b80e4432e439a038146bb6764cbd61"
   license "MIT"
   head "https://github.com/gloiiire/cocker.git", branch: "main"
 
@@ -27,8 +27,8 @@ class Cocker < Formula
   # both `version "..."` AND this `vX.Y.Z` substring on every release
   # tag so they stay in lock-step.
   bottle do
-    root_url "https://github.com/gloiiire/cocker/releases/download/v0.7.13.10"
-    sha256 cellar: :any_skip_relocation, all:      "25cc06f7b562fdc5afb291739c399824a92cea8322cf16cc43e1f7949bd1b530"
+    root_url "https://github.com/gloiiire/cocker/releases/download/v0.7.13.11"
+    sha256 cellar: :any_skip_relocation, all:      "8cc3a25e0503c7081401a43a87a0bda4b544429dc5637ac8dcf5d22fa3d676c0"
   end
 
   depends_on arch: :arm64
@@ -62,7 +62,7 @@ class Cocker < Formula
              "-o", "cocker-init",
              "init.c", "cmdline.c", "net.c", "dns_proxy.c",
              "spec.c", "qemu.c", "exec_listener.c", "caps.c",
-             "health_poll.c", "etc_overlay.c"
+             "health_poll.c", "etc_overlay.c", "dhcp_min.c"
       cp "cocker-init", "initrd-staging/init"
       chmod 0755, "initrd-staging/init"
       cd "initrd-staging" do
